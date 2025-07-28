@@ -1,6 +1,6 @@
-<?php
+<?php 
 session_start();
-require 'produtos.php';
+require_once 'produtos.php';
 ?>
 
 <!DOCTYPE html>
@@ -29,12 +29,12 @@ require 'produtos.php';
 <main>
   <h2>Nossos Produtos</h2>
   <ul class="produtos">
-    <?php foreach($_SESSION['produtos'] as $id => $produto): ?>
+    <?php foreach ($produtos as $produto): ?>
       <li>
-        <img src="<?= htmlspecialchars($produto['imagem']) ?>" alt="<?= htmlspecialchars($produto['nome']) ?>">
-        <h3><?= htmlspecialchars($produto['nome']) ?></h3>
-        <p>Preço: R$ <?= number_format($produto['preco'],2,",",".") ?></p>
-        <a href="carrinho.php?add=<?= $id ?>" class="btn">Adicionar ao Carrinho</a>
+        <img src="<?= htmlspecialchars($produto->imagem) ?>" alt="<?= htmlspecialchars($produto->nome) ?>">
+        <h3><?= htmlspecialchars($produto->nome) ?></h3>
+        <p>Preço: R$ <?= number_format($produto->preco, 2, ",", ".") ?></p>
+        <a href="atualiza_carrinho.php?add=<?= $produto->id ?>" class="btn">Adicionar ao Carrinho</a>
       </li>
     <?php endforeach; ?>
   </ul>

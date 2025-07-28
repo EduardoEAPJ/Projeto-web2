@@ -1,25 +1,27 @@
 <?php
 session_start();
-require 'produtos.php';
+require_once 'database.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_SESSION['carrinho'])) {
-    header('Location: index.php');
+    header('Location: carrinho.php');
     exit;
 }
 
-$nome = trim($_POST['nome']);
-$endereco = trim($_POST['endereco']);
+$nome = $_POST['nome'];
+$endereco = $_POST['endereco'];
 $pagamento = $_POST['pagamento'];
 
+$db = new Database();
+
+$ids = implode(',', array_keys($_SESSION['carrinho']));
+$produtos = $db->select("SELECT * FROM produtos WHERE id IN ($ids)");
+
 $total = 0;
-foreach($_SESSION['carrinho'] as $id => $qtd){
-    $produto = $_SESSION['produtos'][$id];
-    $total += $produto['preco'] * $qtd;
+foreach ($produtos as $p) {
+    $total += $p->preco * $_SESSION['carrinho'][$p->id];
 }
 
-// Aqui você poderia salvar o pedido no banco ou arquivo
 
-// Limpa carrinho
 unset($_SESSION['carrinho']);
 ?>
 
@@ -31,25 +33,12 @@ unset($_SESSION['carrinho']);
 <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body>
-<header>
-  <h1>Pedido Confirmado!</h1>
-</header>
-<main>
-  <h2>Obrigado, <?= htmlspecialchars($nome) ?>!</h2>
-  <p>Seu pedido foi recebido e será entregue em breve no endereço:</p>
-  <p><strong><?= htmlspecialchars($endereco) ?></strong></p>
-  <p>Forma de Pagamento: <strong><?= htmlspecialchars($pagamento) ?></strong></p>
-  <p>Valor Total: <strong>R$ <?= number_format($total,2,",",".") ?></strong></p>
-
-  <?php if ($pagamento === 'PIX'): ?>
-    <p><strong>Chave PIX:</strong> pix@acai.com</p>
-  <?php elseif ($pagamento === 'Dinheiro'): ?>
-    <p>O pagamento será feito na entrega.</p>
-  <?php elseif ($pagamento === 'Cartão'): ?>
-    <p>O pagamento será processado na entrega via maquininha.</p>
-  <?php endif; ?>
-
-  <p><a href="index.php">Voltar à Loja</a></p>
-</main>
+<h1>Pedido Confirmado</h1>
+<p>Obrigado, <?= htmlspecialchars($nome) ?>!</p>
+<p>Endereço: <?= htmlspecialchars($endereco) ?></p>
+<p>Forma de pagamento: <?= htmlspecialchars($pagamento) ?></p>
+<p>Valor total: R$ <?= number_format($total, 2, ',', '.') ?></p>
+<p>Seu pedido está sendo processado.</p>
+<a href="index.php">Voltar ao início</a>
 </body>
 </html>

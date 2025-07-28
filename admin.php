@@ -1,104 +1,147 @@
 <?php
 session_start();
-require 'produtos.php';
-
 if (!isset($_SESSION['admin'])) {
     header('Location: admin_login.php');
     exit;
 }
+require_once 'database.php';
+$db = new Database();
 
-if (!isset($_SESSION['produtos_inativos'])) {
-    $_SESSION['produtos_inativos'] = [];
-}
-
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'], $_POST['preco'], $_POST['imagem'])) {
-    $nome = trim($_POST['nome']);
-    $preco = (float)$_POST['preco'];
-    $imagem = trim($_POST['imagem']);
-    if ($nome && $preco > 0 && $imagem) {
-        $id = empty($_SESSION['produtos']) ? 1 : (max(array_keys($_SESSION['produtos'])) + 1);
-        $_SESSION['produtos'][$id] = [
-            "nome" => $nome,
-            "preco" => $preco,
-            "imagem" => $imagem
-        ];
-    }
-}
-
-if (isset($_GET['arquivar'])) {
-    $id = (int)$_GET['arquivar'];
-    if (isset($_SESSION['produtos'][$id])) {
-        $_SESSION['produtos_inativos'][$id] = $_SESSION['produtos'][$id];
-        unset($_SESSION['produtos'][$id]);
-    }
-    header("Location: admin.php");
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover'])) {
+    $db->delete("DELETE FROM produtos WHERE id = ?", [$_POST['id']]);
+    header('Location: admin.php');
     exit;
 }
-if (isset($_GET['ativar'])) {
-    $id = (int)$_GET['ativar'];
-    if (isset($_SESSION['produtos_inativos'][$id])) {
-        $_SESSION['produtos'][$id] = $_SESSION['produtos_inativos'][$id];
-        unset($_SESSION['produtos_inativos'][$id]);
-    }
-    header("Location: admin.php");
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['adicionar'])) {
+    $nome = $_POST['nome'];
+    $preco = $_POST['preco'];
+    $imagem = $_FILES['imagem']['name'];
+    move_uploaded_file($_FILES['imagem']['tmp_name'], 'imagem/' . $imagem);
+    $db->insert("INSERT INTO produtos (nome, preco, imagem) VALUES (?, ?, ?)", [$nome, $preco, "imagem/$imagem"]);
+    header('Location: admin.php');
     exit;
 }
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['editar_produto'])) {
+    $id = $_POST['id'];
+    $nome = $_POST['nome'];
+    $preco = $_POST['preco'];
+    if (!empty($_FILES['imagem']['name'])) {
+        $imagem = $_FILES['imagem']['name'];
+        move_uploaded_file($_FILES['imagem']['tmp_name'], 'imagem/' . $imagem);
+        $db->update("UPDATE produtos SET nome = ?, preco = ?, imagem = ? WHERE id = ?", [$nome, $preco, "imagem/$imagem", $id]);
+    } else {
+        $db->update("UPDATE produtos SET nome = ?, preco = ? WHERE id = ?", [$nome, $preco, $id]);
+    }
+    header('Location: admin.php');
+    exit;
+}
+
+$produtos = $db->select("SELECT * FROM produtos");
+$editar_id = isset($_POST['editar']) ? $_POST['id'] : null;
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Painel Admin - Açaí do Mamute</title>
-<link rel="stylesheet" href="css/estilo.css">
+<title>Painel Admin</title>
 <style>
-.produto-item { display: flex; align-items: center; margin-bottom: 0.5em; }
-.produto-item img { height: 50px; margin-right: 1em; }
-.produto-item a { margin-left: 1em; }
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+}
+h1, h2 {
+    margin: 1em;
+    color: #6b1b57;
+}
+form {
+    background: white;
+    margin: 1em;
+    padding: 1.5em;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    max-width: 600px;
+}
+input[type="text"], input[type="number"], input[type="file"] {
+    width: 100%;
+    padding: 0.7em;
+    margin: 0.5em 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+button {
+    background: #6b1b57;
+    color: white;
+    padding: 0.7em 1.5em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 0.5em;
+}
+button:hover {
+    background: #9e3a83;
+}
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 1em;
+}
+li {
+    background: white;
+    padding: 1em;
+    margin-bottom: 0.5em;
+    border-left: 5px solid #6b1b57;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.actions form {
+    display: inline;
+}
 </style>
 </head>
 <body>
-<h2>Administração de Produtos</h2>
+<h1>Painel Admin</h1>
 
-<h3>Adicionar Produto</h3>
-<form method="post">
-  <label>Nome:</label><input type="text" name="nome" required><br>
-  <label>Preço:</label><input type="number" name="preco" step="0.01" required><br>
-  <label>URL da Imagem:</label><input type="text" name="imagem" required><br>
-  <button type="submit">Adicionar</button>
+<h2>Adicionar Produto</h2>
+<form method="post" enctype="multipart/form-data">
+  <input type="text" name="nome" placeholder="Nome" required>
+  <input type="number" step="0.01" name="preco" placeholder="Preço" required>
+  <input type="file" name="imagem" accept="image/*" required>
+  <button type="submit" name="adicionar">Adicionar</button>
 </form>
 
-<h3>Produtos Ativos</h3>
-<?php if (!empty($_SESSION['produtos'])): ?>
+<h2>Produtos</h2>
 <ul>
-<?php foreach($_SESSION['produtos'] as $id => $produto): ?>
-  <li class="produto-item">
-    <img src="<?= htmlspecialchars($produto['imagem']) ?>" alt="">
-    <?= htmlspecialchars($produto['nome']) ?> - R$ <?= number_format($produto['preco'],2,",",".") ?>
-    <a href="?arquivar=<?= $id ?>">Arquivar</a>
+  <?php foreach ($produtos as $p): ?>
+  <li>
+    <div>
+      <?= $p->nome ?> - R$ <?= number_format($p->preco, 2, ',', '.') ?>
+    </div>
+    <div class="actions">
+      <form method="post">
+        <input type="hidden" name="id" value="<?= $p->id ?>">
+        <button type="submit" name="remover">Remover</button>
+        <button type="submit" name="editar">Editar</button>
+      </form>
+    </div>
   </li>
-<?php endforeach; ?>
-</ul>
-<?php else: ?>
-<p>Nenhum produto ativo.</p>
-<?php endif; ?>
 
-<h3>Produtos Arquivados</h3>
-<?php if (!empty($_SESSION['produtos_inativos'])): ?>
-<ul>
-<?php foreach($_SESSION['produtos_inativos'] as $id => $produto): ?>
-  <li class="produto-item">
-    <img src="<?= htmlspecialchars($produto['imagem']) ?>" alt="">
-    <?= htmlspecialchars($produto['nome']) ?> - R$ <?= number_format($produto['preco'],2,",",".") ?>
-    <a href="?ativar=<?= $id ?>">Ativar</a>
-  </li>
-<?php endforeach; ?>
-</ul>
-<?php else: ?>
-<p>Nenhum produto arquivado.</p>
-<?php endif; ?>
+  <?php if ($editar_id == $p->id): ?>
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="id" value="<?= $p->id ?>">
+    <input type="text" name="nome" value="<?= $p->nome ?>" required>
+    <input type="number" step="0.01" name="preco" value="<?= $p->preco ?>" required>
+    <input type="file" name="imagem" accept="image/*">
+    <button type="submit" name="editar_produto">Salvar Alterações</button>
+  </form>
+  <?php endif; ?>
 
-<p><a href="index.php">Voltar ao Site</a></p>
+  <?php endforeach; ?>
+</ul>
 </body>
 </html>

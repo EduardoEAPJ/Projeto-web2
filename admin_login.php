@@ -1,102 +1,56 @@
-<?php
-session_start();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $usuario = $_POST['usuario'] ?? '';
-    $senha = $_POST['senha'] ?? '';
-
-    if ($usuario === 'admin' && $senha === 'admin123') {
-        $_SESSION['admin'] = $usuario;
-        header('Location: admin.php');
-        exit;
-    } else {
-        $erro = "Usuário ou senha inválidos.";
-    }
-}
-?>
-
+<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Login Admin - Açaí do Mamute</title>
-<link rel="stylesheet" href="css/estilo.css">
+<title>Login Admin</title>
 <style>
-/* Estilo específico só para login admin */
 body {
-    background: #f0f0f0;
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
 }
-
-.login-container {
-    max-width: 400px;
-    margin: 50px auto;
+form {
     background: white;
+    max-width: 400px;
+    margin: 5em auto;
     padding: 2em;
-    border-radius: 10px;
+    border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-
-.login-container h2 {
+h1 {
     text-align: center;
+    margin-bottom: 1em;
     color: #6b1b57;
 }
-
-.login-container form {
-    display: flex;
-    flex-direction: column;
-}
-
-.login-container label {
-    margin-top: 1em;
-    color: #333;
-}
-
-.login-container input {
-    padding: 0.5em;
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 0.7em;
+    margin-bottom: 1em;
     border: 1px solid #ccc;
     border-radius: 5px;
-    margin-top: 0.3em;
 }
-
-.login-container button {
-    margin-top: 1.5em;
-    padding: 0.7em;
+button {
+    width: 100%;
     background: #6b1b57;
     color: white;
+    padding: 0.7em;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1em;
-    transition: background 0.3s;
 }
-
-.login-container button:hover {
-    background: #8c2b73;
-}
-
-.login-container .error {
-    margin-top: 1em;
-    color: #b00020;
-    text-align: center;
+button:hover {
+    background: #9e3a83;
 }
 </style>
 </head>
 <body>
-<div class="login-container">
-    <h2>Login do Administrador</h2>
-    <?php if (!empty($erro)): ?>
-        <div class="error"><?= htmlspecialchars($erro) ?></div>
-    <?php endif; ?>
-    <form method="post">
-        <label>Usuário:</label>
-        <input type="text" name="usuario" required>
-
-        <label>Senha:</label>
-        <input type="password" name="senha" required>
-
-        <button type="submit">Entrar</button>
-    </form>
-</div>
+<form method="post" action="admin.php">
+  <h1>Login Admin</h1>
+  <input type="text" name="usuario" placeholder="Usuário" required>
+  <input type="password" name="senha" placeholder="Senha" required>
+  <button type="submit">Entrar</button>
+</form>
 </body>
 </html>
