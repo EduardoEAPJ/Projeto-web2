@@ -41,6 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['editar_produto'])) {
 $produtos = $db->select("SELECT * FROM produtos");
 $editar_id = isset($_POST['editar']) ? $_POST['id'] : null;
 ?>
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -102,10 +104,21 @@ li {
 .actions form {
     display: inline;
 }
+a{
+    text-decoration: none;
+    color: #6b1b57;
+    font-weight: bold;
+    margin: 1em;
+    border: 1px solid #6b1b57;
+    padding: 0.5em 1em;
+    border-radius: 5px;
+}
 </style>
 </head>
 <body>
 <h1>Painel Admin</h1>
+<h1>Bem-vindo, <?php echo $_SESSION['usuario']->nome; ?>!</h1>
+
 
 <h2>Adicionar Produto</h2>
 <form method="post" enctype="multipart/form-data">
@@ -143,5 +156,7 @@ li {
 
   <?php endforeach; ?>
 </ul>
+<a href="logout.php">voltar</a>
+
 </body>
 </html>
