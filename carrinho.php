@@ -57,6 +57,169 @@ $total = 0;
 <meta charset="UTF-8">
 <title>Carrinho - Açaí do Mamute</title>
 <link rel="stylesheet" href="css/estilo.css">
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  padding: 24px;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  color: #6b1b57;
+  margin-bottom: 24px;
+  font-size: 1.6rem;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+table th, table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+table th {
+  background-color: #6b1b57;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  font-size: 0.85rem;
+}
+
+.product-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.product-name img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e6e6e6;
+}
+
+input[type="number"] {
+  width: 72px;
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  background: #fafafa;
+  font-size: 0.95rem;
+}
+
+.remove-link {
+  color: #e03434;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background .15s ease;
+}
+
+.remove-link:hover {
+  background: rgba(224,52,52,0.08);
+}
+
+.cart-summary {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  align-items: center;
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+.total-box {
+  background: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  font-weight: 700;
+}
+
+button[name="update"] {
+  background-color: #6b1b57;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background .15s ease, transform .06s ease;
+}
+
+button[name="update"]:hover {
+  background-color: #9e3a83;
+  transform: translateY(-1px);
+}
+
+.checkout-btn {
+  display: inline-block;
+  background-color: #27a05b;
+  color: #fff;
+  padding: 11px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: background .15s ease, transform .06s ease;
+  margin-left: 12px;
+}
+
+.checkout-btn:hover {
+  background-color: #1f7e45;
+  transform: translateY(-1px);
+}
+
+.empty {
+  text-align: center;
+  background: #fff;
+  padding: 28px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  font-size: 1rem;
+}
+
+@media (max-width: 700px) {
+  table th, table td { padding: 10px; font-size: .9rem; }
+  .product-name img { width: 56px; height: 56px; }
+  .cart-summary { flex-direction: column; align-items: stretch; gap: 10px; }
+  .checkout-btn { width: 100%; text-align: center; margin-left: 0; }
+}
+    
+</style>
+
 </head>
 <body>
 <h1>Carrinho</h1>
